@@ -21,4 +21,10 @@ describe('App', () => {
 
     expect(heading).toBeInTheDocument();
   });
+
+  it('shows a preview polygon', () => {
+    render(<App />);
+    // The PolygonSvg renders with role="img"; we just confirm App mounts it.
+    expect(screen.getByRole('img')).toBeInTheDocument();
+  });
 });
