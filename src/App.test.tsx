@@ -22,9 +22,11 @@ describe('App', () => {
     expect(heading).toBeInTheDocument();
   });
 
-  it('shows a preview polygon', () => {
+  it('mounts the quiz game on the first question', () => {
     render(<App />);
-    // The PolygonSvg renders with role="img"; we just confirm App mounts it.
+    // App now hands off to QuizGame, which starts a round of 5 questions.
+    // The counter text is deterministic regardless of which polygons are drawn.
+    expect(screen.getByText(/question 1 of 5/i)).toBeInTheDocument();
     expect(screen.getByRole('img')).toBeInTheDocument();
   });
 });

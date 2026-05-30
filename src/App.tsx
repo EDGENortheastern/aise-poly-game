@@ -1,15 +1,13 @@
-import { PolygonSvg } from './components/PolygonSvg';
+import { QuizGame } from './components/QuizGame';
 
-// `React.FC` is one way to type a component, but the modern, recommended style
-// is a plain function whose return type TypeScript infers as JSX.Element.
-// For now App shows a preview polygon so we can see the SVG render. The full
-// quiz flow gets wired up in a later step (still test-first).
+// The top-level component. It just frames the page and hands control to
+// QuizGame, which owns the round. Each piece below it was built test-first.
 export default function App() {
   return (
     <main>
       <h1>Polygon Quiz</h1>
-      <p>Preview — the quiz logic arrives in the next steps.</p>
-      <PolygonSvg sides={8} />
+      <p className="tagline">Count the sides, name the shape.</p>
+      <QuizGame />
     </main>
   );
 }

@@ -58,11 +58,14 @@ npm run build      # type-check + production build
 
 1. **Scaffold + tooling** — Vite/React/TS, Vitest + RTL wired up, this README,
    and a first sanity test proving the red→green loop works.
-2. _polygonNames domain logic (next)_
-3. _PolygonSvg component_
-4. _Quiz engine_
-5. _QuizGame component_
-6. _App wiring + styles_
+2. **polygonNames domain logic** — pure `getPolygonName` / `isPolygon`,
+   demonstrating typed lookup tables and `noUncheckedIndexedAccess`.
+3. **PolygonSvg component** — draws an N-sided SVG; typed props; RTL queries.
+4. **Quiz engine** — `Question` model, forgiving `checkAnswer`, and
+   `generateRound` with an injected RNG for deterministic tests.
+5. **QuizGame component** — the interactive 5-question round, driven in tests
+   with `user-event`; reveals the answer and tracks the score.
+6. **App wiring + styles** — App hands off to QuizGame; the game is styled.
 
 A note on the "0 to 20" range: a polygon needs **at least 3 sides**, so the quiz
 draws shapes with **3–20 sides**. The naming function still covers the whole
