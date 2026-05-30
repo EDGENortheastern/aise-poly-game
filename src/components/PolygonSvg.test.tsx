@@ -1,13 +1,6 @@
-// ── Step 3, RED ──────────────────────────────────────────────────────────────
-// Now we test a *component* instead of a plain function. React Testing Library
-// renders it into the jsdom DOM and we assert on what ended up in the document.
-//
-// The behaviour we want: given `sides`, draw an SVG <polygon> that has exactly
-// one vertex per side, and keep every vertex inside the SVG viewport.
 import { render } from '@testing-library/react';
 import { PolygonSvg } from './PolygonSvg';
 
-// Helper: parse an SVG `points="x1,y1 x2,y2 ..."` attribute into number pairs.
 function parsePoints(polygon: SVGPolygonElement): Array<[number, number]> {
   const raw = polygon.getAttribute('points')?.trim() ?? '';
   return raw

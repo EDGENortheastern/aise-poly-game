@@ -1,8 +1,3 @@
-// ── Step 4, RED ──────────────────────────────────────────────────────────────
-// The "engine" is the rules of the game expressed as pure functions: build a
-// round of questions, and decide whether a typed guess is correct. No React,
-// no DOM — just data. That keeps the tricky logic (randomness, fuzzy matching)
-// fully unit-tested before any UI touches it.
 import {
   ROUND_SIZE,
   generateRound,
@@ -63,7 +58,7 @@ describe('generateRound', () => {
   });
 
   it('is deterministic when given an injected RNG (dependency injection)', () => {
-    const alwaysFirst = () => 0; // floor(0 * len) === 0 -> always take index 0
+    const alwaysFirst = () => 0;
     const round: Question[] = generateRound(3, alwaysFirst);
     expect(round.map((q) => q.sides)).toEqual([3, 4, 5]);
   });

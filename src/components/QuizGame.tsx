@@ -1,21 +1,11 @@
-// ── Step 5, GREEN ────────────────────────────────────────────────────────────
-// The interactive component. It owns the round's state with React hooks and
-// composes the pieces we already built and tested: PolygonSvg (Step 3) and the
-// quiz engine (Step 4). Because those are proven, this component only has to
-// orchestrate them.
 import { useState, type FormEvent } from 'react';
 import { PolygonSvg } from './PolygonSvg';
 import { checkAnswer, generateRound, type Question } from '../domain/quizEngine';
 
 export type QuizGameProps = {
-  // How to build a round. Defaults to real randomness; tests inject a fixed
-  // round. This is the same dependency-injection idea as in the engine.
   createRound?: () => Question[];
 };
 
-// The outcome of answering the current question: not yet answered, or the
-// graded result. A union of string literals means TypeScript knows the only
-// possible values are these three — typos like 'correctt' won't compile.
 type Result = 'unanswered' | 'correct' | 'incorrect';
 
 export function QuizGame({ createRound = () => generateRound() }: QuizGameProps) {
@@ -38,12 +28,11 @@ export function QuizGame({ createRound = () => generateRound() }: QuizGameProps)
     setIsComplete(false);
   }
 
-  // ── Round complete screen ──────────────────────────────────────────────────
   if (isComplete) {
     return (
       <section aria-labelledby="result-heading">
         <h2 id="result-heading">Round complete!</h2>
-        <p>
+        <p className="score">
           You scored {score} of {total}.
         </p>
         <button type="button" onClick={() => resetRound(createRound())}>
@@ -53,15 +42,10 @@ export function QuizGame({ createRound = () => generateRound() }: QuizGameProps)
     );
   }
 
-  // `round[index]` is typed `Question | undefined` because of
-  // noUncheckedIndexedAccess; guarding here proves to TypeScript it exists.
   const current = round[index];
   if (current === undefined) {
     return <p>No questions available.</p>;
   }
-  // Destructure the now-guaranteed values into primitives. TypeScript keeps the
-  // narrowing for these consts even inside the handler closures below, whereas
-  // it would widen `current` itself back to `Question | undefined` there.
   const { sides, answer } = current;
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -107,7 +91,15 @@ export function QuizGame({ createRound = () => generateRound() }: QuizGameProps)
         </form>
       ) : (
         <div>
-          <p>{result === 'correct' ? '✓ Correct!' : '✗ Not quite.'}</p>
+          <p
+            className={
+              result === 'correct'
+                ? 'feedback feedback--correct'
+                : 'feedback feedback--incorrect'
+            }
+          >
+            {result === 'correct' ? '✓ Correct!' : '✗ Not quite.'}
+          </p>
           <p>
             The answer is <strong>{answer}</strong>.
           </p>

@@ -1,11 +1,3 @@
-// ── Step 5, RED ──────────────────────────────────────────────────────────────
-// The interactive component. We drive it the way a real player would, using
-// `@testing-library/user-event`: type into the box, click buttons, and assert
-// on what the screen shows. We never reach into component state — only the
-// rendered output, exactly what a user perceives.
-//
-// To keep tests deterministic we inject a fixed round via the `createRound`
-// prop instead of relying on real randomness.
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QuizGame } from './QuizGame';
@@ -20,11 +12,9 @@ const FIXED_ROUND: Question[] = [
 ];
 
 function renderGame() {
-  // Return a fresh copy each time so the component can never mutate our fixture.
   return render(<QuizGame createRound={() => FIXED_ROUND.map((q) => ({ ...q }))} />);
 }
 
-// Helper: answer the current question and advance to the next screen.
 async function answerCurrent(
   user: ReturnType<typeof userEvent.setup>,
   guess: string,
@@ -63,7 +53,6 @@ describe('QuizGame', () => {
     await user.click(screen.getByRole('button', { name: /submit/i }));
 
     expect(screen.getByText(/not quite/i)).toBeInTheDocument();
-    // The answer to question 1 (a triangle) is shown regardless.
     expect(screen.getByText(/triangle/i)).toBeInTheDocument();
   });
 
@@ -80,11 +69,11 @@ describe('QuizGame', () => {
     const user = userEvent.setup();
     renderGame();
 
-    await answerCurrent(user, 'triangle'); // correct
-    await answerCurrent(user, 'wrong'); // wrong
-    await answerCurrent(user, 'pentagon'); // correct
-    await answerCurrent(user, 'wrong'); // wrong
-    await answerCurrent(user, 'octagon', true); // correct (last)
+    await answerCurrent(user, 'triangle');
+    await answerCurrent(user, 'wrong');
+    await answerCurrent(user, 'pentagon');
+    await answerCurrent(user, 'wrong');
+    await answerCurrent(user, 'octagon', true);
 
     expect(screen.getByText(/round complete/i)).toBeInTheDocument();
     expect(screen.getByText(/3 of 5/i)).toBeInTheDocument();

@@ -1,7 +1,5 @@
 import { QuizGame } from './components/QuizGame';
 
-// The top-level component. It just frames the page and hands control to
-// QuizGame, which owns the round. Each piece below it was built test-first.
 export default function App() {
   return (
     <main>

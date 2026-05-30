@@ -1,11 +1,3 @@
-// ── Step 2, RED ──────────────────────────────────────────────────────────────
-// We describe the behaviour we want from a pure function BEFORE it exists.
-// "Pure" = same input always gives the same output, with no side effects, which
-// makes it the easiest kind of code to test: no DOM, no mocks, just values in
-// and values out.
-//
-// This file won't even compile at first (the module it imports doesn't exist
-// yet). In TypeScript, "won't compile" is a perfectly good shade of RED.
 import {
   getPolygonName,
   isPolygon,
