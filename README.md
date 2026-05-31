@@ -2,7 +2,7 @@
 
 Polygon Quiz is a small React and TypeScript game about recognising polygons. The player is shown a shape, counts the sides, types the polygon name, and moves through a five question round. At the end, the game shows the final score and lets the player start again.
 
-The number of sides used in the polygon quiz goes all the way up to 20, which might feel a little bit excessive; however, once you reach shapes like the one in Figure 1, the result is satisfying. A heptadecagon, by the way, has 17 sides. Neither of us knew that before starting this project, but we definitely do now.
+The number of sides used in the polygon quiz goes all the way up to 20, which might feel a little bit excessive; however, once you reach shapes like the one in Figure 1, the result is satisfying. A heptadecagon, by the way, has 17 sides. Neither of us knew that before starting this project, but we definitely do now. You can check out the live game [here](https://aise-poly-game.vercel.app/).
 
 ![Heptadecagon example](./hepta_deca.png)
 
@@ -26,9 +26,201 @@ The game feels simple on the surface, but it uses the core React idea properly. 
 
 The `PolygonSvg` component draws the shape using the browser’s built in SVG support. It does not use a picture of a triangle, square, pentagon, or octagon. It calculates the points of the polygon and passes them into an SVG `<polygon>` element.
 
-The component receives a number of sides. It then works around a circle and calculates one vertex for each side. For a hexagon, it calculates six points. For a decagon, it calculates ten points. The points are joined into the SVG `points` attribute, and the browser draws the polygon from those coordinates.
+## Polygon SVG Component
 
-This is a useful way to teach graphics because the visual output comes from maths and code rather than from copied image assets. The same component can draw many shapes because the number of sides is data.
+This component creates polygon graphics dynamically using React, TypeScript, maths, and SVG.
+
+The file begins with a TypeScript type:
+
+```ts
+export type PolygonSvgProps = {
+  sides: number;
+  size?: number;
+  colorIndex?: number;
+};
+```
+
+This defines the props the component can receive.
+
+Props are values passed into a React component from another component.
+
+For example:
+
+```tsx
+<PolygonSvg sides={6} />
+```
+
+Here, `sides={6}` is a prop.
+
+The `sides` prop tells the component how many sides the polygon should have.
+
+The `size` prop controls the width and height of the SVG canvas.
+
+The `?` symbol means the prop is optional.
+
+If no size is provided, the component uses a default value.
+
+The `colorIndex` prop selects a colour combination from the colour array.
+
+The type is exported because other files may need to import it.
+
+For example, another component might want autocomplete or type checking for the props.
+
+The component stores colour pairs here:
+
+```ts
+const COLOR_PAIRS = [
+  { fill: '#c8eaf7', stroke: '#0d3353' },
+]
+```
+
+Each polygon therefore has both a fill colour and an outline colour.
+
+The geometry is generated inside the `computeVertices()` function.
+
+```ts
+function computeVertices(
+  sides,
+  cx,
+  cy,
+  radius,
+)
+```
+
+This function calculates the coordinates for every polygon corner.
+
+The loop runs once for every side:
+
+```ts
+for (let i = 0; i < sides; i++)
+```
+
+The polygon is mathematically built around the centre of the SVG canvas.
+
+For every iteration, the function calculates an angle around a circle:
+
+```ts
+const angle = startAngle + (i * 2 * Math.PI) / sides;
+```
+
+The coordinates are generated using trigonometry:
+
+```ts
+Math.cos(angle)
+Math.sin(angle)
+```
+
+`Math.cos()` calculates horizontal movement.
+
+`Math.sin()` calculates vertical movement.
+
+The generated coordinates are stored as `[x, y]` pairs.
+
+The function returns an array containing all polygon vertices.
+
+The React component itself is exported here:
+
+```ts
+export function PolygonSvg()
+```
+
+The function is exported so other files can import and render the component.
+
+For example:
+
+```tsx
+import { PolygonSvg } from './PolygonSvg';
+```
+
+Inside the component, the vertices are converted into SVG coordinate text:
+
+```ts
+.map(([x, y]) => `${x},${y}`)
+.join(' ')
+```
+
+SVG polygons require coordinates in this format:
+
+```ts
+"100,20 180,80 150,160"
+```
+
+The SVG is then rendered using JSX:
+
+```tsx
+<svg>
+  <polygon points={points} />
+</svg>
+```
+
+React converts this JSX into real SVG markup in the browser.
+
+The browser finally draws the polygon visually using those coordinates.
+
+The SVG also includes accessibility attributes:
+
+```tsx
+role="img"
+aria-label="A polygon to identify — count its sides"
+```
+
+This allows screen readers to interpret the SVG as an image.
+
+The result is a React component that combines TypeScript, maths, SVG graphics, accessibility, and declarative rendering together.
+
+## How the SVG Component is Tested
+
+The SVG tests focus on the geometry of the polygon rather than screenshots.
+
+The tests render the React SVG component using React Testing Library and inspect the generated `<polygon>` element directly.
+
+SVG polygons store coordinates inside a `points` attribute such as:
+
+```ts
+"100,20 180,80 150,160"
+```
+
+The `parsePoints()` helper converts this string into numeric coordinate arrays so the geometry can be tested mathematically.
+
+The first test checks accessibility:
+
+```ts
+expect(getByRole('img')).toBeInTheDocument();
+```
+
+This ensures the SVG behaves like an accessible image.
+
+The next tests check whether the polygon generates the correct number of vertices for the selected number of sides.
+
+For example:
+
+```ts
+render(<PolygonSvg sides={6} />);
+```
+
+should produce six coordinate points.
+
+The tests also check multiple polygon sizes including triangles and 20-sided polygons to ensure the maths works consistently across different shapes.
+
+The final test checks that every vertex remains inside the SVG viewport.
+
+```ts
+expect(x).toBeGreaterThanOrEqual(0);
+expect(x).toBeLessThanOrEqual(size);
+```
+
+This prevents polygons from being clipped outside the visible SVG canvas.
+
+The component generates coordinates using trigonometry with functions such as:
+
+```ts
+Math.cos(angle)
+Math.sin(angle)
+```
+
+React then converts those calculated coordinates into SVG markup which the browser renders visually.
+
+The tests therefore validate the React rendering, the SVG structure, and the mathematical correctness of the polygon together.
 
 ## Component map
 
