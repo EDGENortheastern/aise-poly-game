@@ -1,72 +1,81 @@
-# Polygon Quiz — a TDD teaching project
+# Polygon Quiz
 
-A small single-page app (SPA) that quizzes you on polygon names. It **draws an
-SVG polygon with N sides**, you **type its name**, and it **reveals the correct
-answer**. A round is **5 questions**.
+Polygon Quiz is a small React and TypeScript game about recognising polygons. The player is shown a shape, counts the sides, types the polygon name, and moves through a five question round. At the end, the game shows the final score and lets the player start again.
 
-The real goal of this repo is to **demonstrate Test-Driven Development (TDD)**
-with **React + TypeScript**, built one small, committable step at a time.
+This is a graphic project as much as a quiz project. The interesting part is not only the answer checking. The app draws the shape itself using SVG, so the player is not looking at fixed image files. Each polygon is generated from code.
 
-## Tech stack & why
+## What the game does
 
-| Tool | Role |
-|------|------|
-| **React** | Builds the UI from small, composable components. |
-| **TypeScript** | Adds static types on top of JavaScript — errors are caught at compile time, before the code runs. |
-| **Vite** | Fast dev server and build tool. |
-| **Vitest** | Test runner. Reuses Vite's config, so tests and app are transformed identically. |
-| **React Testing Library (RTL)** | Renders components and lets us query them *the way a user would* (by role, label, visible text) instead of by implementation details. |
-| **jsdom** | A fake browser DOM so RTL can run in Node without a real browser. |
+The game creates a short round of polygon questions. Each question stores the number of sides and the correct answer. React uses that question data to decide what to show on screen. If the question has five sides, the SVG component draws a pentagon. If the question has eight sides, it draws an octagon. The player does not see the data directly, but the whole interface is driven by it.
 
-## What is TDD? The Red → Green → Refactor loop
+The answer checker is deliberately forgiving. It ignores capital letters and extra spaces, so `Octagon`, ` octagon `, and `OCTAGON` are treated as the same answer. It also accepts a few alternative polygon names where that makes sense, such as square for a four sided polygon.
 
-We never write production code without a failing test first:
+## How React is used
 
-1. **🔴 Red** — write a test describing the behaviour you want. Run it. It fails
-   (often it doesn't even compile — that counts as red, and TypeScript makes
-   "red" appear earlier than in plain JS).
-2. **🟢 Green** — write the *minimum* code to make the test pass. No more.
-3. **🔵 Refactor** — improve the code's shape while the test keeps it correct.
+React breaks the game into small pieces. The main `App` component gives the page its title and then hands the actual quiz to `QuizGame`. `QuizGame` manages the current round, the current question number, the player’s typed answer, the score, and whether the round has finished.
 
-Each numbered build step in this project is one or more turns of that loop, and
-ends as a single git commit.
+When the player types into the input, React stores that text in state. When the player submits an answer, React checks the guess, updates the result, and re renders the screen. That is why the page can switch from the input form to the feedback message without loading a new page.
 
-## Why TypeScript matters here
+The game feels simple on the surface, but it uses the core React idea properly. The screen is a reflection of state. Change the state, and React updates the screen.
 
-TypeScript describes the *shape* of our data and functions:
+## How the SVG drawing works
 
-- A polygon-name lookup is typed `(sides: number) => string`, so calling it with
-  a string is a compile error, not a runtime surprise.
-- The quiz's data model (`Question`, `RoundState`) is expressed as `type`s, so
-  the compiler guarantees every component receives exactly the props it expects.
-- Editor autocomplete and refactoring become reliable because the types are the
-  source of truth.
+The `PolygonSvg` component draws the shape using the browser’s built in SVG support. It does not use a picture of a triangle, square, pentagon, or octagon. It calculates the points of the polygon and passes them into an SVG `<polygon>` element.
 
-You'll see these types introduced step by step, each one motivated by a test.
+The component receives a number of sides. It then works around a circle and calculates one vertex for each side. For a hexagon, it calculates six points. For a decagon, it calculates ten points. The points are joined into the SVG `points` attribute, and the browser draws the polygon from those coordinates.
 
-## Commands
+This is a useful way to teach graphics because the visual output comes from maths and code rather than from copied image assets. The same component can draw many shapes because the number of sides is data.
+
+## Component map
+
+`main.tsx` starts the React app and places it inside the page.
+
+`App.tsx` gives the project its title and tagline, then renders the quiz.
+
+`QuizGame.tsx` controls the game flow. It creates a round, shows the current question, records the player’s answer, checks the result, moves to the next question, and shows the final score.
+
+`PolygonSvg.tsx` draws the polygon for the current question. It turns a number of sides into SVG coordinates.
+
+`quizEngine.ts` contains the quiz logic. It creates rounds, checks answers, handles accepted alternatives, and keeps the logic away from the interface.
+
+`polygonNames.ts` contains the polygon name lookup. It knows which names match which side counts and rejects values that are not supported.
+
+`index.css` styles the game so the quiz feels like one complete small product rather than a raw coding exercise.
+
+## How the tests were written
+
+The tests were written around behaviour, not around private implementation details. That matters because a user does not care what a state variable is called. A user cares whether the title appears, whether a polygon appears, whether the answer can be submitted, and whether the score is correct.
+
+The domain tests check the plain logic first. `polygonNames.test.ts` checks that side counts return the right names, that shapes with fewer than three sides are rejected, and that unsupported values do not silently pass. `quizEngine.test.ts` checks that answers are accepted correctly, that spaces and capital letters do not break a correct answer, that synonyms work, and that generated rounds contain valid, non repeated polygons.
+
+The SVG tests check the graphic part directly. `PolygonSvg.test.tsx` renders the SVG and checks that it is accessible as an image. It also reads the `<polygon>` points and counts them. That means the test can prove a six sided question really produces six vertices. Another test checks that every vertex stays inside the SVG viewport, which is important because a drawing can technically exist while still being partly off screen.
+
+The game tests use React Testing Library and user event to interact with the app more like a real player. The tests type answers, click buttons, move through the round, and check the final score. A fixed round is injected into `QuizGame`, so the tests do not depend on random questions. That makes the tests reliable and repeatable.
+
+This is the stronger testing pattern in the project. Randomness is useful for the player, but it is awkward for tests. By allowing the game to receive a known round during testing, the app keeps the real behaviour while the tests stay predictable.
+
+## Why this project is useful
+
+This project is small enough to understand, but it still has the shape of a real React app. It has separate UI components, separate domain logic, generated graphics, stateful interaction, and automated tests.
+
+It is also a good teaching project because the player can see the code working visually. When the number of sides changes, the shape changes. When the answer is submitted, the feedback changes. When the round ends, the result screen appears. That makes React’s state driven model easier to understand because each change has an obvious effect on the screen.
+
+## Running the project locally
+
+Install the dependencies with
 
 ```bash
-npm install        # install dependencies
-npm test           # run Vitest in watch mode (the TDD driver's seat)
-npm run test:run   # run the suite once (CI-style)
-npm run dev        # start the app at http://localhost:5173
-npm run build      # type-check + production build
+npm install
 ```
 
-## Build log (committable steps)
+Start the development server with `npm run dev`.
 
-1. **Scaffold + tooling** — Vite/React/TS, Vitest + RTL wired up, this README,
-   and a first sanity test proving the red→green loop works.
-2. **polygonNames domain logic** — pure `getPolygonName` / `isPolygon`,
-   demonstrating typed lookup tables and `noUncheckedIndexedAccess`.
-3. **PolygonSvg component** — draws an N-sided SVG; typed props; RTL queries.
-4. **Quiz engine** — `Question` model, forgiving `checkAnswer`, and
-   `generateRound` with an injected RNG for deterministic tests.
-5. **QuizGame component** — the interactive 5-question round, driven in tests
-   with `user-event`; reveals the answer and tracks the score.
-6. **App wiring + styles** — App hands off to QuizGame; the game is styled.
+Run the tests in watch mode with `npm test`.
 
-A note on the "0 to 20" range: a polygon needs **at least 3 sides**, so the quiz
-draws shapes with **3–20 sides**. The naming function still covers the whole
-range and explains why 0/1/2 aren't polygons.
+Run the tests once with `npm run test:run`.
+
+Create a production build with `npm run build`.
+
+## Final note
+
+Polygon Quiz is not trying to be a huge app. It is a clean, focused example of how React, TypeScript, SVG, and tests can work together. The game gives learners something visual to play with, while the codebase shows how to keep logic, graphics, and interaction separated clearly.
