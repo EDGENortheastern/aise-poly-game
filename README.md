@@ -2,6 +2,10 @@
 
 Polygon Quiz is a small React and TypeScript game about recognising polygons. The player is shown a shape, counts the sides, types the polygon name, and moves through a five question round. At the end, the game shows the final score and lets the player start again.
 
+The number of sides used in the polygon quiz goes all the way up to 20, which might feel a little bit excessive; however, once you reach shapes like the one in Figure 1, the result is satisfying. A heptadecagon, by the way, has 17 sides. Neither of us knew that before starting this project, but we definitely do now.
+
+![Heptadecagon example](./hepta_deca.png)
+
 This is a graphic project as much as a quiz project. The interesting part is not only the answer checking. The app draws the shape itself using SVG, so the player is not looking at fixed image files. Each polygon is generated from code.
 
 ## What the game does
