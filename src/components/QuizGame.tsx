@@ -72,7 +72,7 @@ export function QuizGame({ createRound = () => generateRound() }: QuizGameProps)
         Question {index + 1} of {total}
       </p>
 
-      <PolygonSvg sides={sides} />
+      <PolygonSvg sides={sides} colorIndex={index} />
 
       {result === 'unanswered' ? (
         <form onSubmit={handleSubmit}>
